@@ -86,7 +86,7 @@ public class StockListAdapter extends RecyclerView.Adapter<StockListAdapter.View
 
             Context context = view.getContext();
 
-            // get fields of viewHolder
+            // get fields from viewHolder
             for(Field field: ViewHolder.class.getDeclaredFields()) {
                 String name = field.getName();
                 field.setAccessible(true);
