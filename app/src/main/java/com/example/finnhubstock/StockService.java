@@ -9,5 +9,14 @@ import retrofit2.http.Query;
 
 public interface StockService {
     @GET("/api/v1/stock/symbol/")
-    Call<ArrayList<Stock>> getStocks(@Query("exchange") String exchange, @Query("token") String token);
+    Call<ArrayList<Stock>> getStocks(
+            @Query("exchange") String exchange,
+            @Query("token") String token
+    );
+
+    @GET("https://finnhub.io/api/v1/quote/")
+    Call<QuoteStock> getQuoteStock(
+            @Query("symbol") String symbol,
+            @Query("token") String token
+    );
 }

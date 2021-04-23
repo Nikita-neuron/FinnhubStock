@@ -54,7 +54,7 @@ public class StockListAdapter extends RecyclerView.Adapter<StockListAdapter.View
                 field.setAccessible(true);
                 TextView textView = (TextView) field.get(holder);
                 assert textView != null;
-                textView.setText(name + ": " + value);
+                textView.setText(value);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }

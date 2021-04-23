@@ -15,6 +15,16 @@ public class Stock {
 
     private String type;
 
+    private QuoteStock quoteStock;
+
+    public QuoteStock getQuoteStock() {
+        return quoteStock;
+    }
+
+    public void setQuoteStock(QuoteStock quoteStock) {
+        this.quoteStock = quoteStock;
+    }
+
     public void setCurrency(String currency){
         this.currency = currency;
     }
