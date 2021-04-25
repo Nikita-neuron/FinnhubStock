@@ -1,7 +1,8 @@
 package com.example.finnhubstock;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +11,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.List;
 
 public class StockListAdapter extends RecyclerView.Adapter<StockListAdapter.ViewHolder>{
 
-    private ArrayList<Stock> stocks;
+    private List<Stock> stocks;
 
-    StockListAdapter(ArrayList<Stock> stocks) {
+    ServerMessages serverMessages;
+
+    StockListAdapter(List<Stock> stocks, ServerMessages serverMessages) {
         this.stocks = stocks;
+        this.serverMessages = serverMessages;
     }
 
     @NonNull
@@ -36,29 +37,50 @@ public class StockListAdapter extends RecyclerView.Adapter<StockListAdapter.View
     public void onBindViewHolder(@NonNull StockListAdapter.ViewHolder holder, int position) {
         Stock stock = stocks.get(position);
 
-        // get fields from holder class
-        for (Field field: ViewHolder.class.getDeclaredFields()){
-            String name = field.getName();
+        TextView description = holder.description;
+        TextView symbol = holder.symbol;
+        TextView differencePrice = holder.differencePrice;
+        TextView currentPrice = holder.currentPrice;
 
-            String value = "";
+        int color = Color.rgb(0, 0, 0);
 
-            try {
-                // get methods from stock class
-                Method stockField = Stock.class.getDeclaredMethod("get" + name.substring(0, 1).toUpperCase() + name.substring(1));
-                value = (String) stockField.invoke(stock);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+        if (stock.getQuoteStock() != null) {
+            currentPrice.setText(stock.getQuoteStock().getC() + "");
+            double different = Math.round((stock.getQuoteStock().getC() - stock.getQuoteStock().getO())*100.0) / 100.0;
+
+            if (different < 0) {
+                color = Color.rgb(255, 4, 4);
+            } else {
+                color = Color.rgb(20, 195, 58);
             }
-            try {
-                // set text to field holder
-                field.setAccessible(true);
-                TextView textView = (TextView) field.get(holder);
-                assert textView != null;
-                textView.setText(value);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+
+            differencePrice.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+
+            differencePrice.setText(different + "");
+        } else {
+            differencePrice.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+            currentPrice.setText("");
+            differencePrice.setText("");
         }
+
+        String des = stock.getDescription();
+        if (des.length() > 10) {
+            String[] spl = des.split(" ");
+
+            StringBuilder builder = new StringBuilder();
+            int ind = 0;
+            for (String word : spl) {
+                builder.append(word).append(" ");
+                if (ind == spl.length - 2) {
+                    builder.append("\n");
+                }
+                ind ++;
+            }
+            description.setText(builder.toString());
+        } else {
+            description.setText(des);
+        }
+        symbol.setText(stock.getSymbol());
     }
 
     @Override
@@ -67,38 +89,29 @@ public class StockListAdapter extends RecyclerView.Adapter<StockListAdapter.View
         return stocks.size();
     }
 
-    public void updateStocks(ArrayList<Stock> stocks) {
+    public void updateStocks(List<Stock> stocks) {
         this.stocks = stocks;
         notifyDataSetChanged();
     }
 
+    public void updateStock(Stock stock, int index) {
+        stocks.set(index, stock);
+        notifyItemChanged(index);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView currency;
         TextView description;
-        TextView displaySymbol;
-        TextView figi;
-        TextView mic;
         TextView symbol;
-        TextView type;
+        TextView currentPrice;
+        TextView differencePrice;
 
         public ViewHolder(View view) {
             super(view);
 
-            Context context = view.getContext();
-
-            // get fields from viewHolder
-            for(Field field: ViewHolder.class.getDeclaredFields()) {
-                String name = field.getName();
-                field.setAccessible(true);
-                try {
-                    // get view from id
-                    View findView = view.findViewById(context.getResources().
-                            getIdentifier(name, "id", context.getPackageName()));
-                    field.set(this, findView);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            symbol = view.findViewById(R.id.symbol);
+            description = view.findViewById(R.id.description);
+            currentPrice = view.findViewById(R.id.currentPrice);
+            differencePrice = view.findViewById(R.id.differencePrice);
         }
     }
 }

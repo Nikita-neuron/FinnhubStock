@@ -3,6 +3,8 @@ package com.example.finnhubstock;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -15,7 +17,10 @@ public class StockServiceGenerator {
 //    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 //    OkHttpClient.Builder httpClient = new OkHttpClient.Builder().addInterceptor(interceptor);
 
-    private static final OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+    private static final OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS);
     private static final  Gson gson = new GsonBuilder().setLenient().create();
 
     private static final Retrofit.Builder builder = new Retrofit.Builder()

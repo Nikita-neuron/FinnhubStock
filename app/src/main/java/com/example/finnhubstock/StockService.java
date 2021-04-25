@@ -9,7 +9,7 @@ import retrofit2.http.Query;
 
 public interface StockService {
     @GET("/api/v1/stock/symbol/")
-    Call<ArrayList<Stock>> getStocks(
+    Call<List<Stock>> getStocks(
             @Query("exchange") String exchange,
             @Query("token") String token
     );
